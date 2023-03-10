@@ -4,7 +4,8 @@ import {
   type NextAuthOptions,
   type DefaultSession,
 } from "next-auth";
-import DiscordProvider from "next-auth/providers/discord";
+// import DiscordProvider from "next-auth/providers/discord";
+import { EmailProvider } from "next-auth/providers/email";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
@@ -17,7 +18,7 @@ import { prisma } from "~/server/db";
  */
 declare module "next-auth" {
   interface Session extends DefaultSession {
-    user: {
+    user: { 
       id: string;
       // ...other properties
       // role: UserRole;
@@ -46,10 +47,28 @@ export const authOptions: NextAuthOptions = {
     },
   },
   adapter: PrismaAdapter(prisma),
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   providers: [
-    DiscordProvider({
-      clientId: env.DISCORD_CLIENT_ID,
-      clientSecret: env.DISCORD_CLIENT_SECRET,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    EmailProvider({
+      server: {
+        host: process.env.EMAIL_SERVER || "https://localhost:3000",
+        port: 587,
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS || "",
+        },
+      },
+      from: process.env.EMAIL_FROM || "no-reply@localhost",
+      //in development mode we don't want to send emails
+
+      ...(process.env.NODE_ENV !== "production" ? {
+        sendVerificationRequest: ({ url }: { url: any })=>{
+          console.log("LOGIN LINK", url)
+        },
+      } : {}),
     }),
     /**
      * ...add more providers here.
