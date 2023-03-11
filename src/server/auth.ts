@@ -18,7 +18,7 @@ import { prisma } from "~/server/db";
  */
 declare module "next-auth" {
   interface Session extends DefaultSession {
-    user: { 
+    user: {
       id: string;
       // ...other properties
       // role: UserRole;
@@ -60,9 +60,9 @@ export const authOptions: NextAuthOptions = {
       },
       from: process.env.EMAIL_FROM || "no-reply@localhost",
       //in development mode we don't want to send emails
-
+      //we spread the object so that we don't have to duplicate the code
       ...(process.env.NODE_ENV !== "production" ? {
-        sendVerificationRequest: ({ url} )=>{
+        sendVerificationRequest: ({ url }): void => {
           console.log("LOGIN LINK", url)
         },
       } : {}),
