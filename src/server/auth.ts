@@ -5,7 +5,7 @@ import {
   type DefaultSession,
 } from "next-auth";
 // import DiscordProvider from "next-auth/providers/discord";
-import { EmailProvider } from "next-auth/providers/email";
+import EmailProvider from "next-auth/providers/email"
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
@@ -49,15 +49,12 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   providers: [
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-ignore
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     EmailProvider({
       server: {
         host: process.env.EMAIL_SERVER || "https://localhost:3000",
         port: 587,
         auth: {
-          user: process.env.EMAIL_USER,
+          user: "",
           pass: process.env.EMAIL_PASS || "",
         },
       },
@@ -65,7 +62,7 @@ export const authOptions: NextAuthOptions = {
       //in development mode we don't want to send emails
 
       ...(process.env.NODE_ENV !== "production" ? {
-        sendVerificationRequest: ({ url }: { url: any })=>{
+        sendVerificationRequest: ({ url} )=>{
           console.log("LOGIN LINK", url)
         },
       } : {}),
