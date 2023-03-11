@@ -20,12 +20,12 @@ export const todoRouter = createTRPCRouter({
         return [
             {
                 id: 1,
-                title: "First todo",
+                text: "First todo",
                 done: false,
             },
             {
                 id: 2,
-                title: "Second todo",
+                text: "Second todo",
                 done: true,
 
             }
