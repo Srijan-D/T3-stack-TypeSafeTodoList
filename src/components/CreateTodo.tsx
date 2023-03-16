@@ -12,14 +12,16 @@ export default function CreateTodo() {
             //we are canceling the all query so that they dont overwrite optimistic updates
             await trpc.todo.all.cancel();
 
-            //
+            // we are saving the previous todos so that we can rollback to the previous state if the mutation fails
             const previousTodos = trpc.todo.all.getData();
 
             //optimistic update
             trpc.todo.all.setData(undefined, (prev) => {
                 const optimisticTodo = {
-                    id: Math.random(),
-                    text: "placeholder",
+                    id: "optimistic-id",
+                    //id is set on the server side, so we are setting it to a random string
+                    text: newTodo,
+                    //we are setting the text to the newTodo value
                     done: false,
                 }
                 if (!prev) return [optimisticTodo]
@@ -28,9 +30,11 @@ export default function CreateTodo() {
             setNewTodo("");
             return ({ previousTodos })
         },
+        //if the mutation fails, we will rollback to the previous state
         onError: (err, newTodo, context) => {
             toast.error("Error occurred while creating todo 🤯");
             setNewTodo(newTodo);
+            //rollback to the previous state
             trpc.todo.all.setData(undefined, () => context?.previousTodos);
         },
         onSettled: async () => {
