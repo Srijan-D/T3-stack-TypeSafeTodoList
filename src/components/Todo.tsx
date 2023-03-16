@@ -30,6 +30,10 @@ export default function Todo({ todo }: TodoProps) {
             })
             return ({ previousTodos })
         },
+        onSuccess: (err, { id, done }) => {
+            if (done) toast.success("Todo completed! 🔥🎉");
+        },
+        //if the mutation fails, we will rollback to the previous state
         onError: (err, newTodo, context) => {
             toast.error(`Error occurred when setting todo to ${done ? 'done' : 'undone'}🤯`);
             //rollback to the previous state
@@ -67,12 +71,12 @@ export default function Todo({ todo }: TodoProps) {
         <>
             <div className="flex gap-4 items-center justify-between">
                 <div className="flex gap-2 items-center">
-                    <input type="checkbox" className="cursor-pointer w-4 h-4" name="done" id="done" checked={done}
+                    <input type="checkbox" className="cursor-pointer w-4 h-4" name="done" id={id} checked={done}
                         onChange={(e) => {
                             doneMutation({ id, done: e.target.checked })
                         }}
                     />
-                    <label htmlFor="done" className={`cursor-pointer`}>
+                    <label htmlFor={id} className={`cursor-pointer ${done ? 'line-through' : ""}`}>
                         {text}
                     </label>
                 </div>
