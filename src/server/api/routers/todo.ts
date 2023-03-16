@@ -8,28 +8,28 @@ import {
 export const todoRouter = createTRPCRouter({
     //only protected session as we need the user to be logged in
     all: protectedProcedure.query(async ({ ctx }) => {
-        //ct constains user session prisma client
+        //ct constains user session prisma 
         const todos = await ctx.prisma.todo.findMany({
             where: {
                 userId: ctx.session.user.id,
             },
             //return only the fields we need
         })
-        console.log('todos from prisma==>', todos.map(({ id, text, done }) => ({ id, text, done })))
+        return todos.map(({ id, text, done }) => ({ id, text, done }))
         //fake data for the time being
-        return [
-            {
-                id: 1,
-                text: "First todo",
-                done: false,
-            },
-            {
-                id: 2,
-                text: "Second todo",
-                done: true,
+        // return [
+        //     {
+        //         id: 1,
+        //         text: "First todo",
+        //         done: false,
+        //     },
+        //     {
+        //         id: 2,
+        //         text: "Second todo",
+        //         done: true,
 
-            }
-        ]
+        //     }
+        // ]
     }),
     create: protectedProcedure.input(todoInput).mutation(async ({ ctx, input }) => {
         return ctx.prisma.todo.create({
