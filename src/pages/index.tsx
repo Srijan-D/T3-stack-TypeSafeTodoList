@@ -3,11 +3,11 @@ import Head from "next/head";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Todos from "~/components/Todos";
 import { api } from "~/utils/api";
+import CreateTodo from "~/components/CreateTodo";
 const Home: NextPage = () => {
   const { data: sessionData } = useSession();
 
   return (
-
     <>
       <Head>
         <title>Typesafe Todo</title>
@@ -16,19 +16,14 @@ const Home: NextPage = () => {
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
         {sessionData && (
-
           <div className="flex flex-col gap-4 rounded-xl bg-white/10 p-4 text-white">
             <h3 className="text-xl font-bold ">
               <Todos />
+              <CreateTodo />
             </h3>
-
           </div>
         )}
-
         <div className="flex flex-col items-center gap-2">
-          <p className="text-2xl text-white">
-
-          </p>
           <AuthShowcase />
         </div>
 
@@ -46,9 +41,9 @@ const AuthShowcase: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center gap-4">
 
-      <p className="text-center text-2xl text-white">
+      <p className="text-center text-2xl text-white mt-">
 
-        {sessionData && <span>Logged in as {sessionData.user?.email}</span>}
+        {sessionData && <span className="text-base">Logged in as {sessionData.user?.email}</span>}
       </p>
       <button
         className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
