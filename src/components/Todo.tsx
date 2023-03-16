@@ -11,8 +11,27 @@ export default function Todo({ todo }: TodoProps) {
     const trpc = api.useContext();
 
     const { mutate: doneMutation } = api.todo.toggle.useMutation({
+        onMutate: async ({ id, done }) => {
+            //we are canceling the all query so that they dont overwrite optimistic updates
+            await trpc.todo.all.cancel();
+
+            // we are saving the previous todos so that we can rollback to the previous state if the mutation fails
+            const previousTodos = trpc.todo.all.getData();
+
+            //optimistic update
+            trpc.todo.all.setData(undefined, (prev) => {
+                if (!prev) return [previousTodos]
+                return prev.map(todo => {
+                    if (todo.id === id) {
+                        return { ...todo, done }
+                    }
+                    return todo
+                })
+            })
+            return ({ previousTodos })
+        },
         onError: (err, newTodo, context) => {
-            toast.error("Error occurred when deleting the todo 🤯");
+            toast.error(`Error occurred when setting todo to ${done ? 'done' : 'undone'}🤯`);
             //rollback to the previous state
             trpc.todo.all.setData(undefined, () => context?.previousTodos);
         },
