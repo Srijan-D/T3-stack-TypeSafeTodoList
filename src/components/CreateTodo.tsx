@@ -23,7 +23,6 @@ export default function CreateTodo() {
                     return;
                 }
                 mutate(newTodo);
-
             }}>
                 <input type="text" className="text-neutral-900" value={newTodo} onChange={(e) => {
                     setNewTodo(e.target.value);
