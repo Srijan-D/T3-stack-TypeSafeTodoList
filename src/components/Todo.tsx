@@ -1,6 +1,7 @@
 //in order to use the Todo type, we need to import it from the types folder
 import type { Todo } from "../types"
 import { api } from "~/utils/api"
+import { toast } from "react-hot-toast"
 
 type TodoProps = {
     todo: Todo
@@ -10,12 +11,33 @@ export default function Todo({ todo }: TodoProps) {
     const trpc = api.useContext();
 
     const { mutate: doneMutation } = api.todo.toggle.useMutation({
+        onError: (err, newTodo, context) => {
+            toast.error("Error occurred when deleting the todo 🤯");
+            //rollback to the previous state
+            trpc.todo.all.setData(undefined, () => context?.previousTodos);
+        },
         onSettled: async () => {
             await trpc.todo.all.invalidate();
             //we are invalidating the all query so that the todos component will re-render after Updating a todo
         }
     })
     const { mutate: deleteMutation } = api.todo.delete.useMutation({
+
+        onMutate: async (deleteId) => {
+            //we are canceling the all query so that they dont overwrite optimistic updates
+            await trpc.todo.all.cancel();
+
+            // we are saving the previous todos so that we can rollback to the previous state if the mutation fails
+            const previousTodos = trpc.todo.all.getData();
+
+            //optimistic update
+            trpc.todo.all.setData(undefined, (prev) => {
+                if (!prev) return [previousTodos]
+                return prev.filter((todo) => todo.id !== deleteId)
+            })
+            return ({ previousTodos })
+        },
+        //if the mutation fails, we will rollback to the previous state
         onSettled: async () => {
             await trpc.todo.all.invalidate();
             //we are invalidating the all query so that the todos component will re-render after Updating a todo
