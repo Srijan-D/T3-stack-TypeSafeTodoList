@@ -54,10 +54,10 @@ export default function CreateTodo() {
                 }
                 mutate(newTodo);
             }}>
-                <input type="text" className="text-neutral-900" value={newTodo} onChange={(e) => {
+                <input type="text" className="text-neutral-900 w-auto hover:opacity-80 bg-gray-400 focus:bg-gray-300 focus:outline-none" value={newTodo} onChange={(e) => {
                     setNewTodo(e.target.value);
                 }} />
-                <button>Create</button>
+                <button className="ml-6 mt-5 text-xl">Create</button>
             </form>
         </div >
     )
