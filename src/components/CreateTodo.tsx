@@ -2,7 +2,6 @@ import { api } from "~/utils/api";
 import { useState } from "react";
 import { todoInput } from "~/types";
 import { toast } from "react-hot-toast";
-import { totalmem } from "os";
 
 export default function CreateTodo() {
     const [newTodo, setNewTodo] = useState("");
@@ -22,7 +21,7 @@ export default function CreateTodo() {
                     //id is set on the server side, so we are setting it to a random string
                     text: newTodo,
                     //we are setting the text to the newTodo value
-                    done: false,
+                    done: false,    
                 }
                 if (!prev) return [optimisticTodo]
                 return [...prev, optimisticTodo]
