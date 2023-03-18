@@ -1,4 +1,9 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { type GetServerSidePropsContext } from "next";
+import { createTransport } from "nodemailer"
 import {
   getServerSession,
   type NextAuthOptions,
@@ -7,7 +12,6 @@ import {
 // import DiscordProvider from "next-auth/providers/discord";
 import EmailProvider from "next-auth/providers/email"
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
 
 /**
@@ -49,23 +53,52 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   providers: [
+    // EmailProvider({
+    //   server: {
+    //     host: process.env.EMAIL_SERVER || "https://localhost:3000",
+    //     port: 587,
+    //     auth: {
+    //       user: "",
+    //       pass: process.env.EMAIL_PASS || "",
+    //     },
+    //   },
+    //   from: process.env.EMAIL_FROM || "no-reply@localhost",
+    //in development mode we don't want to send emails
+    //we spread the object so that we don't have to duplicate the code
+    // ...(process.env.NODE_ENV !== "production" ? {
+    // sendVerificationRequest: ({ url }): void => {
+    //     console.log("LOGIN LINK", url)
+    //   },
+    // } : {}),
+    //nodemailer transport
     EmailProvider({
       server: {
-        host: process.env.EMAIL_SERVER || "https://localhost:3000",
+        host: "smtp.gmail.com",
         port: 587,
         auth: {
-          user: "",
-          pass: process.env.EMAIL_PASS || "",
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+        from: process.env.EMAIL_FROM,
+        sendVerificationRequest({
+          identifier: email, url,
+          provider: { server, from },
+        }) {
+          async function sendVerificationRequest(params: any) {
+            const { identifier, url, provider, theme } = params
+            // NOTE: You are not required to use `nodemailer`, use whatever you want.
+            const transport = createTransport(provider.server)
+            const result = await transport.sendMail({
+              to: identifier,
+              from: provider.from,
+              subject: `Sign in to https://localhost:3000`,
+              text: `Sign in to https://localhost:3000`,
+              html: `<h1>Sign in to ${url}</h1>`
+            })
+           
+          }
         },
       },
-      from: process.env.EMAIL_FROM || "no-reply@localhost",
-      //in development mode we don't want to send emails
-      //we spread the object so that we don't have to duplicate the code
-      ...(process.env.NODE_ENV !== "production" ? {
-        sendVerificationRequest: ({ url }): void => {
-          console.log("LOGIN LINK", url)
-        },
-      } : {}),
     }),
     /**
      * ...add more providers here.
