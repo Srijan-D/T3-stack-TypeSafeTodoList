@@ -95,7 +95,10 @@ export const authOptions: NextAuthOptions = {
               text: `Sign in to https://localhost:3000`,
               html: `<h1>Sign in to ${url}</h1>`
             })
-           
+             const failed = result.rejected.concat(result.pending).filter(Boolean)
+            if (failed.length) {
+              throw new Error(`Email(s) (${failed.join(", ")}) could not be sent`)
+            }
           }
         },
       },
