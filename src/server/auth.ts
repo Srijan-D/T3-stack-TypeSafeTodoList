@@ -53,6 +53,7 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   providers: [
+    //In development mode we don't want to send emails
     // EmailProvider({
     //   server: {
     //     host: process.env.EMAIL_SERVER || "https://localhost:3000",
@@ -71,6 +72,7 @@ export const authOptions: NextAuthOptions = {
     //   },
     // } : {}),
     //nodemailer transport
+    // if (process.env.NODE_ENV === "production") {
     EmailProvider({
       server: {
         host: "smtp.gmail.com",
